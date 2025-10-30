@@ -312,23 +312,32 @@ async function searchTrains() {
     }
 }
 
-// Display train results
+// Display train results with enhanced UI
 function displayTrainResults(trains) {
     const resultsDiv = document.getElementById('trainResults');
     
     if (trains.length === 0) {
-        resultsDiv.innerHTML = '<div class="no-results"><i class="fas fa-train"></i><p>No trains found for this route</p></div>';
+        resultsDiv.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-train"></i>
+                <p>No trains found for this route</p>
+                <p style="font-size: 1rem; color: var(--gray-600); margin-top: 0.5rem;">
+                    Try searching for different stations or dates
+                </p>
+            </div>
+        `;
         return;
     }
     
-    resultsDiv.innerHTML = trains.map(train => `
-        <div class="train-card">
+    // Add staggered animation delay
+    resultsDiv.innerHTML = trains.map((train, index) => `
+        <div class="train-card" style="animation-delay: ${index * 0.1}s;">
             <div class="train-header">
-                <div>
+                <div class="train-info">
                     <div class="train-name">${train.train_name}</div>
                     <div class="train-number">#${train.train_number}</div>
                 </div>
-                <div class="train-status">Available</div>
+                <div class="train-status">${train.available_seats > 50 ? 'Available' : train.available_seats > 0 ? 'Limited Seats' : 'Waitlist'}</div>
             </div>
             <div class="train-route">
                 <div class="station">
@@ -347,8 +356,12 @@ function displayTrainResults(trains) {
                     <div class="detail-value">${train.available_seats}</div>
                 </div>
                 <div class="detail-item">
+                    <div class="detail-label">Class</div>
+                    <div class="detail-value">AC/Sleeper</div>
+                </div>
+                <div class="detail-item">
                     <div class="detail-label">Fare</div>
-                    <div class="detail-value fare">₹${train.fare}</div>
+                    <div class="detail-value fare">₹${parseFloat(train.fare).toLocaleString('en-IN')}</div>
                 </div>
                 <div class="detail-item">
                     <button class="btn btn-primary" onclick="openBookingModal(${train.id})">
@@ -451,26 +464,37 @@ function updatePassengerForms() {
     updateBookingSummary();
 }
 
-// Update booking summary
+// Update booking summary with enhanced UI
 function updateBookingSummary() {
     if (!currentTrain) return;
     
     const numPassengers = parseInt(document.getElementById('numPassengers').value);
-    const totalAmount = currentTrain.fare * numPassengers;
+    const baseFare = parseFloat(currentTrain.fare);
+    const subtotal = baseFare * numPassengers;
+    const tax = subtotal * 0.05; // 5% GST
+    const totalAmount = subtotal + tax;
     
     document.getElementById('bookingSummary').innerHTML = `
-        <h4>Booking Summary</h4>
+        <h4><i class="fas fa-receipt"></i> Booking Summary</h4>
         <div class="summary-item">
-            <span>Base Fare (per ticket):</span>
-            <span>₹${currentTrain.fare}</span>
+            <span><i class="fas fa-ticket-alt"></i> Base Fare (per ticket):</span>
+            <span style="font-weight: 600;">₹${baseFare.toLocaleString('en-IN')}</span>
         </div>
         <div class="summary-item">
-            <span>Number of Passengers:</span>
-            <span>${numPassengers}</span>
+            <span><i class="fas fa-users"></i> Number of Passengers:</span>
+            <span style="font-weight: 600;">${numPassengers}</span>
+        </div>
+        <div class="summary-item">
+            <span><i class="fas fa-calculator"></i> Subtotal:</span>
+            <span style="font-weight: 600;">₹${subtotal.toLocaleString('en-IN')}</span>
+        </div>
+        <div class="summary-item">
+            <span><i class="fas fa-percent"></i> GST (5%):</span>
+            <span style="font-weight: 600;">₹${tax.toFixed(2)}</span>
         </div>
         <div class="summary-item summary-total">
-            <span>Total Amount:</span>
-            <span>₹${totalAmount}</span>
+            <span><i class="fas fa-rupee-sign"></i> Total Amount:</span>
+            <span>₹${totalAmount.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
         </div>
     `;
 }
@@ -518,45 +542,66 @@ async function handleBooking(e) {
     }
 }
 
-// Show booking success
+// Show booking success with enhanced UI
 function showBookingSuccess(booking) {
-    showToast('Booking confirmed successfully!', 'success');
+    showToast('🎉 Booking confirmed successfully!', 'success');
     
     const resultsDiv = document.getElementById('trainResults');
     resultsDiv.innerHTML = `
-        <div class="pnr-card">
+        <div class="pnr-card" style="animation: fadeInUp 0.6s ease;">
             <div class="pnr-header">
-                <h3>🎉 Booking Confirmed!</h3>
+                <h3 style="color: var(--success-color); font-size: 2rem; margin-bottom: 1rem;">
+                    <i class="fas fa-check-circle"></i> Booking Confirmed!
+                </h3>
                 <div class="pnr-number">PNR: ${booking.pnr}</div>
                 <div class="pnr-status confirmed">CONFIRMED</div>
             </div>
             <div class="pnr-info">
                 <div class="info-item">
-                    <h4>Train</h4>
-                    <p>${booking.train_name} (${booking.train_number})</p>
+                    <h4><i class="fas fa-train"></i> Train</h4>
+                    <p>${booking.train_name}</p>
+                    <p style="color: var(--gray-600);">#${booking.train_number}</p>
                 </div>
                 <div class="info-item">
-                    <h4>Journey Date</h4>
+                    <h4><i class="fas fa-calendar-alt"></i> Journey Date</h4>
                     <p>${formatDate(booking.journey_date)}</p>
                 </div>
                 <div class="info-item">
-                    <h4>Passengers</h4>
+                    <h4><i class="fas fa-users"></i> Passengers</h4>
                     <p>${booking.num_passengers}</p>
                 </div>
                 <div class="info-item">
-                    <h4>Total Amount</h4>
-                    <p>₹${booking.total_amount}</p>
+                    <h4><i class="fas fa-rupee-sign"></i> Total Amount</h4>
+                    <p style="font-size: 1.5rem; font-weight: 800; color: var(--success-color);">
+                        ₹${parseFloat(booking.total_amount).toLocaleString('en-IN')}
+                    </p>
                 </div>
                 <div class="info-item">
-                    <h4>Seat Numbers</h4>
+                    <h4><i class="fas fa-chair"></i> Seat Numbers</h4>
                     <p>${booking.seat_numbers.replace(/\|/g, ', ')}</p>
                 </div>
             </div>
-            <p style="text-align: center; margin-top: 1rem; color: var(--gray);">
-                Please save your PNR number for future reference
-            </p>
+            <div style="text-align: center; margin-top: 2rem; padding: 1.5rem; background: rgba(56, 239, 125, 0.1); border-radius: var(--radius-lg);">
+                <p style="color: var(--gray-700); font-weight: 600; margin-bottom: 0.5rem;">
+                    <i class="fas fa-info-circle"></i> Important: Save your PNR number
+                </p>
+                <p style="color: var(--gray-600); font-size: 0.9rem;">
+                    You can check your booking status anytime using the PNR number
+                </p>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Ticket
+                </button>
+                <button class="btn btn-secondary" onclick="document.querySelector('a[href=\\'#my-bookings\\']').click()">
+                    <i class="fas fa-list"></i> View All Bookings
+                </button>
+            </div>
         </div>
     `;
+    
+    // Scroll to results
+    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Check PNR
@@ -664,53 +709,82 @@ async function loadMyBookings() {
     }
 }
 
-// Display my bookings
+// Display my bookings with enhanced UI
 function displayMyBookings(bookings) {
     const listDiv = document.getElementById('bookingsList');
     
-    listDiv.innerHTML = bookings.map(booking => {
+    listDiv.innerHTML = bookings.map((booking, index) => {
         const statusClass = booking.status === 'confirmed' ? 'confirmed' : 'cancelled';
         const canCancel = booking.status === 'confirmed' && new Date(booking.journey_date) > new Date();
+        const isPast = new Date(booking.journey_date) < new Date();
         
         return `
-            <div class="booking-card">
+            <div class="booking-card" style="animation: fadeInUp 0.5s ease ${index * 0.1}s both;">
                 <div class="train-header">
-                    <div>
+                    <div class="train-info">
                         <div class="train-name">${booking.train_name}</div>
-                        <div class="train-number">PNR: ${booking.pnr}</div>
+                        <div class="train-number">
+                            <i class="fas fa-hashtag"></i> PNR: ${booking.pnr}
+                        </div>
                     </div>
-                    <div class="pnr-status ${statusClass}">${booking.status.toUpperCase()}</div>
+                    <div class="pnr-status ${statusClass}">
+                        ${booking.status === 'confirmed' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>'}
+                        ${booking.status.toUpperCase()}
+                    </div>
                 </div>
                 <div class="pnr-info">
                     <div class="info-item">
-                        <h4>Journey Date</h4>
+                        <h4><i class="fas fa-calendar-alt"></i> Journey Date</h4>
                         <p>${formatDate(booking.journey_date)}</p>
+                        ${isPast ? '<p style="color: var(--gray-500); font-size: 0.875rem;">Completed</p>' : ''}
                     </div>
                     <div class="info-item">
-                        <h4>Route</h4>
-                        <p>${booking.source} → ${booking.destination}</p>
+                        <h4><i class="fas fa-route"></i> Route</h4>
+                        <p>${booking.source}</p>
+                        <p style="color: var(--gray-600);"><i class="fas fa-arrow-down"></i></p>
+                        <p>${booking.destination}</p>
                     </div>
                     <div class="info-item">
-                        <h4>Passengers</h4>
-                        <p>${booking.num_passengers}</p>
+                        <h4><i class="fas fa-clock"></i> Timing</h4>
+                        <p>Dep: ${formatTime(booking.departure_time)}</p>
+                        <p>Arr: ${formatTime(booking.arrival_time)}</p>
                     </div>
                     <div class="info-item">
-                        <h4>Amount</h4>
-                        <p>₹${booking.total_amount}</p>
+                        <h4><i class="fas fa-users"></i> Passengers</h4>
+                        <p style="font-size: 1.5rem; font-weight: 700;">${booking.num_passengers}</p>
                     </div>
                     <div class="info-item">
-                        <h4>Seats</h4>
-                        <p>${booking.seat_numbers.replace(/\|/g, ', ')}</p>
+                        <h4><i class="fas fa-rupee-sign"></i> Amount Paid</h4>
+                        <p style="font-size: 1.25rem; font-weight: 700; color: var(--success-color);">
+                            ₹${parseFloat(booking.total_amount).toLocaleString('en-IN')}
+                        </p>
+                    </div>
+                    <div class="info-item">
+                        <h4><i class="fas fa-chair"></i> Seats</h4>
+                        <p style="font-weight: 600;">${booking.seat_numbers.replace(/\|/g, ', ')}</p>
                     </div>
                 </div>
-                ${canCancel ? `
-                    <button class="btn btn-danger" onclick="cancelBooking(${booking.id})">
-                        <i class="fas fa-times"></i> Cancel Booking
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+                    ${canCancel ? `
+                        <button class="btn btn-danger" onclick="cancelBooking(${booking.id})">
+                            <i class="fas fa-times-circle"></i> Cancel Booking
+                        </button>
+                    ` : ''}
+                    <button class="btn btn-outline" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print Ticket
                     </button>
-                ` : ''}
+                    <button class="btn btn-outline" onclick="downloadTicket('${booking.pnr}')">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
             </div>
         `;
     }).join('');
+}
+
+// Download ticket function
+function downloadTicket(pnr) {
+    showToast('Download feature coming soon!', 'warning');
 }
 
 // Cancel booking
