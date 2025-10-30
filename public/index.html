@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Book railway tickets online with ease. Fast, secure, and reliable booking system.">
+    <title>RailBook - Premium Railway Ticket Booking</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-train"></i>
+                <span>RailBook</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#search" class="nav-link">Search Trains</a></li>
+                <li><a href="#pnr" class="nav-link">Check PNR</a></li>
+                <li id="myBookingsNav" style="display: none;"><a href="#my-bookings" class="nav-link">My Bookings</a></li>
+                <li id="profileNav" style="display: none;"><a href="#profile" class="nav-link">Profile</a></li>
+            </ul>
+            <div class="nav-auth">
+                <button id="loginBtn" class="btn btn-outline">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <button id="registerBtn" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </button>
+                <div id="userMenu" style="display: none;">
+                    <span id="usernameDisplay" class="username-display"></span>
+                    <button id="logoutBtn" class="btn btn-outline">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Your Journey Starts Here</h1>
+            <p class="hero-subtitle">Experience seamless railway ticket booking with advanced features and instant confirmation</p>
+            <div class="hero-search">
+                <div class="search-box">
+                    <div class="input-group">
+                        <label>FROM</label>
+                        <div class="input-group-inner">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <input type="text" id="heroSource" placeholder="Enter source station" list="sourceStations">
+                            <datalist id="sourceStations"></datalist>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>TO</label>
+                        <div class="input-group-inner">
+                            <i class="fas fa-location-dot"></i>
+                            <input type="text" id="heroDestination" placeholder="Enter destination" list="destStations">
+                            <datalist id="destStations"></datalist>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>JOURNEY DATE</label>
+                        <div class="input-group-inner">
+                            <i class="fas fa-calendar-alt"></i>
+                            <input type="date" id="heroDate">
+                        </div>
+                    </div>
+                    <button class="btn btn-search btn-lg" id="heroSearchBtn">
+                        <i class="fas fa-search"></i> Search Trains
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="hero-bg"></div>
+    </section>
+
+    <!-- Search Section -->
+    <section id="search" class="section">
+        <div class="container">
+            <h2 class="section-title">🔍 Find Your Perfect Train</h2>
+            <div class="search-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> From Station</label>
+                        <input type="text" id="searchSource" placeholder="Enter source station" list="searchSourceList">
+                        <datalist id="searchSourceList"></datalist>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-location-dot"></i> To Station</label>
+                        <input type="text" id="searchDestination" placeholder="Enter destination" list="searchDestList">
+                        <datalist id="searchDestList"></datalist>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Journey Date</label>
+                        <input type="date" id="searchDate">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-block btn-lg" id="searchTrainsBtn">
+                            <i class="fas fa-search"></i> Search Trains
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="trainResults" class="train-results"></div>
+        </div>
+    </section>
+
+    <!-- PNR Check Section -->
+    <section id="pnr" class="section bg-light">
+        <div class="container">
+            <h2 class="section-title">🎫 Check Your PNR Status</h2>
+            <div class="pnr-form">
+                <div class="input-group-large">
+                    <input type="text" id="pnrInput" placeholder="Enter your 10-digit PNR number" maxlength="15">
+                    <button class="btn btn-primary btn-lg" id="checkPnrBtn">
+                        <i class="fas fa-search"></i> Check Status
+                    </button>
+                </div>
+            </div>
+            <div id="pnrResult" class="pnr-result"></div>
+        </div>
+    </section>
+
+    <!-- My Bookings Section -->
+    <section id="my-bookings" class="section" style="display: none;">
+        <div class="container">
+            <h2 class="section-title">📋 My Bookings</h2>
+            <div id="bookingsList" class="bookings-list"></div>
+        </div>
+    </section>
+
+    <!-- Profile Section -->
+    <section id="profile" class="section bg-light" style="display: none;">
+        <div class="container">
+            <h2 class="section-title">👤 My Profile</h2>
+            <div class="profile-card">
+                <div id="profileContent"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-modal="loginModal">&times;</span>
+            <h2><i class="fas fa-sign-in-alt"></i> Welcome Back</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Username or Email</label>
+                    <input type="text" id="loginUsername" placeholder="Enter your username or email" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Login to Account
+                </button>
+            </form>
+            <p class="modal-footer">Don't have an account? <a href="#" id="switchToRegister">Create one now</a></p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-modal="registerModal">&times;</span>
+            <h2><i class="fas fa-user-plus"></i> Create Account</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label><i class="fas fa-user-circle"></i> Full Name</label>
+                    <input type="text" id="regFullName" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="regUsername" placeholder="Choose a username" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email Address</label>
+                    <input type="email" id="regEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Phone Number</label>
+                    <input type="tel" id="regPhone" placeholder="Enter your phone number">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="regPassword" placeholder="Create a strong password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </form>
+            <p class="modal-footer">Already have an account? <a href="#" id="switchToLogin">Login here</a></p>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" data-modal="bookingModal">&times;</span>
+            <h2><i class="fas fa-ticket-alt"></i> Book Your Tickets</h2>
+            <div id="bookingTrainInfo"></div>
+            <form id="bookingForm">
+                <div class="form-group">
+                    <label><i class="fas fa-calendar-alt"></i> Journey Date</label>
+                    <input type="date" id="bookingDate" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-users"></i> Number of Passengers (Max 6)</label>
+                    <input type="number" id="numPassengers" min="1" max="6" value="1" required>
+                </div>
+                <div id="passengersContainer"></div>
+                <div class="booking-summary" id="bookingSummary"></div>
+                <button type="submit" class="btn btn-success btn-block btn-lg">
+                    <i class="fas fa-check-circle"></i> Confirm Booking
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fas fa-train"></i> RailBook</h3>
+                    <p>Your trusted partner for seamless railway ticket booking across the nation. Experience the future of travel.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="#search"><i class="fas fa-search"></i> Search Trains</a></li>
+                        <li><a href="#pnr"><i class="fas fa-ticket-alt"></i> Check PNR</a></li>
+                        <li><a href="#my-bookings"><i class="fas fa-list"></i> My Bookings</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                        <li><a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
+                        <li><a href="#"><i class="fas fa-headset"></i> Contact Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-phone"></i> 1800-XXX-XXXX (Toll Free)</p>
+                    <p><i class="fas fa-envelope"></i> support@railbook.com</p>
+                    <p><i class="fas fa-clock"></i> 24/7 Customer Support</p>
+                    <p><i class="fas fa-map-marker-alt"></i> India Wide Service</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 RailBook - Premium Railway Booking System. All rights reserved. | Made with <i class="fas fa-heart" style="color: #f5576c;"></i> in India</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
